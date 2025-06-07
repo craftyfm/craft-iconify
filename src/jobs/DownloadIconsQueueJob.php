@@ -18,7 +18,6 @@ class DownloadIconsQueueJob extends BaseJob
     /**
      * @throws Exception
      * @throws GuzzleException
-     * @throws ErrorException
      */
     public function execute($queue): void
     {

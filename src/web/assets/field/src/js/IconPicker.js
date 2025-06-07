@@ -11,6 +11,7 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
         $removeBtn: null,
         $input: null,
 
+        currentPage: 1,
         modal: null,
         cancelToken: null,
         $searchInput: null,
@@ -24,7 +25,6 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
         init(container, settings) {
             this.$container = $(container);
             this.setSettings(settings, Craft.IconPicker.defaults);
-            this.$currentPage = 1;
             this.hasMore = true;
             this.loading = false;
             this.$preview = this.$container.children('.icon-picker--icon');
@@ -40,7 +40,10 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
                 this.removeIcon();
             });
         },
-
+        cleanState() {
+            this.currentPage = 1;
+            this.hasMore = true;
+        },
         showModal() {
             if (!this.modal) {
                 this.createModal();
@@ -96,9 +99,8 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
                 })
                 .appendTo($footer);
 
-            this.addListener(this.$iconListContainer, 'scroll.infiniteScroll', () => {
-                this.onScroll();
-            });
+
+            this.$iconList.on('scroll.infiniteScroll', $.proxy(this.onScroll, this));
 
             Craft.cp.announce(Craft.t('app', 'Loading'));
             const formObserver = new Craft.FormObserver($searchContainer, () => {
@@ -106,8 +108,9 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
             });
 
             this.addListener(this.$setOptions, 'select,change', () =>{
-                console.log('Selected value:');
+                this.cleanState();
                 this.updateIcons();
+                this.$iconList.scrollTop(0);
             })
             this.addListener(this.$searchInput, 'input,change', () => {
                 if (this.$searchInput.val()) {
@@ -141,7 +144,14 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
         },
 
         async onScroll() {
-
+            if (this.loading || !this.hasMore) return;
+            const listElement = this.$iconList[0];
+            const scrollTop = listElement.scrollTop;
+            const scrollHeight = listElement.scrollHeight;
+            const clientHeight = listElement.clientHeight;
+            if (scrollTop + clientHeight >= scrollHeight - 200) {
+                this.loadMore();
+            }
         },
         async updateIcons() {
             const listHtml = await this.loadIcons();
@@ -157,14 +167,23 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
             Craft.cp.announce(message);
         },
 
+        async loadMore() {
+            this.currentPage += 1;
+            const listHtml = await this.loadIcons();
+            if (listHtml.length <= 0) {
+                this.hasMore = false;
+                return;
+            }
+            this.$iconList.append(listHtml);
+        },
+
         async loadIcons() {
             if (this.cancelToken) {
                 this.cancelToken.cancel();
             }
 
+            this.loading = true;
             const search = this.$searchInput.val();
-
-
             const set =  $('#iconSet').val();
 
             this.$iconListContainer.addClass('loading');
@@ -172,7 +191,7 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
             this.cancelToken = axios.CancelToken.source();
 
             try {
-                this.loading = true;
+
                 const response = await Craft.sendActionRequest(
                     'POST',
                     'iconify/field/picker',
@@ -180,6 +199,7 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
                         data: {
                             search,
                             set,
+                            page: this.currentPage,
                         },
                         cancelToken: this.cancelToken.token,
                     }

@@ -14,15 +14,16 @@ use yii\web\Response;
 
 class FieldController extends Controller
 {
+    protected array|bool|int $allowAnonymous = true;
     /**
      * @throws BadRequestHttpException
      */
     public function actionPicker(): Response
     {
-        $this->requireCpRequest();
-        $this->requireAcceptsJson();
+//        $this->requireCpRequest();
+//        $this->requireAcceptsJson();
 
-        $perPage = 500;
+        $perPage = 200;
 
         $search = $this->request->getRequiredBodyParam('search');
         $set  = $this->request->getRequiredBodyParam('set');
@@ -45,7 +46,7 @@ class FieldController extends Controller
 
         $icons = Plugin::getInstance()->icons->getIconsModel([
            'set' => $set
-        ], $perPage, $page);
+        ], $perPage, $page*$perPage);
 
         $output = [];
         $scores = [];

@@ -37,6 +37,7 @@ class Icons extends Component
             $query->offset($offset);
         }
 
+        $query->orderBy(['name' => SORT_ASC]);
         // Fetch all matching records
         $records = $query->all();
 
