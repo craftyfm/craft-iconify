@@ -1,0 +1,60 @@
+{% extends "_layouts/cp" %}
+{% import '_includes/forms.twig' as forms %}
+
+{% set fullPageForm = true %}
+{% set title = 'Settings' %}
+
+{% set iconSetOptions = collections | keys | map(i => { label: i|title, value: i }) %}
+
+{% set formAction = {
+    label: 'Save and continue editing'|t('plugin-handle'),
+    redirect: 'iconify/settings',
+    retainScroll: true,
+} %}
+{% block content %}
+    {{ actionInput('iconify/settings/save') }}
+
+    {{
+        forms.selectField({
+            label: "Icon Category",
+            id: 'iconCategory',
+            options: iconSetOptions,
+            instructions: 'Select an icon set. Browse full icon sets at <a href="https://icon-sets.iconify.design/">Iconify</a>.',
+        })
+    }}
+
+
+    <div class="field">
+        <div class="heading"><label id="iconsDirectory-label" for="iconsDirectory">Icon Sets</label></div>
+
+        <div id="iconCheckboxGroups">
+            {% for key, collection in collections %}
+                <div class="icon-group" data-iconset="{{ key }}" style="display: none;">
+                    {% for setKey, iconSet in collection %}
+                        <label>
+                            <input type="checkbox" name="iconSets[]" value="{{ setKey }}"
+                                   {% if setKey in settings.iconSets ?? [] %}checked{% endif %}
+                            >
+                            {{ iconSet['name'] }}
+                        </label><br>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+{% js %}
+document.getElementById('iconCategory').addEventListener('change', function () {
+    const selected = this.value;
+    document.querySelectorAll('#iconCheckboxGroups .icon-group').forEach(group => {
+        group.style.display = group.dataset.iconset === selected ? 'block' : 'none';
+    });
+});
+
+// Trigger on load to show correct group if value is preset
+document.getElementById('iconCategory').dispatchEvent(new Event('change'));
+{% endjs %}
