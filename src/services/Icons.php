@@ -186,10 +186,10 @@ class Icons extends Component
      */
     public function deleteIconSet(string $iconSet): void
     {
-        $folderPath = $this->getIconSetDirectory($iconSet);
-        if (is_dir($folderPath)) {
-            FileHelper::removeDirectory($folderPath);
-        }
+//        $folderPath = $this->getIconSetDirectory($iconSet);
+//        if (is_dir($folderPath)) {
+//            FileHelper::removeDirectory($folderPath);
+//        }
 
         AffixRecord::deleteAll(['iconSet' => $iconSet]);
 

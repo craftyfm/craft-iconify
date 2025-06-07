@@ -27,7 +27,7 @@ class DownloadIconsController extends Controller
             foreach ($settings->iconSets as $set) {
                 $this->_processIconSet($set);
             }
-        } else {
+        } else if(in_array($iconSet, $settings->iconSets)) {
             $this->_processIconSet($iconSet);
         }
 
