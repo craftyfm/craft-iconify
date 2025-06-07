@@ -36,17 +36,17 @@ class DownloadIconsController extends Controller
 
     /**
      * @throws Exception
-     * @throws ErrorException
      * @throws GuzzleException
      * @throws \yii\base\Exception
      */
     private function _processIconSet($iconSet): void
     {
         $iconList = Plugin::getInstance()->iconify->getIconList($iconSet);
-        Plugin::getInstance()->icons->deleteIconSet($iconSet);
+        Plugin::getInstance()->icons->deleteIconSetAffixes($iconSet);
 
         $prefixes = [];
         $suffixes = [];
+
         foreach ($iconList['prefixes'] as $prefix => $label) {
             $id = Plugin::getInstance()->icons->saveIconAffix($iconSet, $prefix, $label, 'prefix');
             $prefixes[$prefix] = $id;
@@ -57,6 +57,7 @@ class DownloadIconsController extends Controller
             $suffixes[$suffix] = $id;
         }
         $this->_saveIcons($iconSet, $iconList['icons'], $prefixes, $suffixes);
+        Plugin::getInstance()->icons->clearIconCache($iconSet);
     }
 
     /**

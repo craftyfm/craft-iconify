@@ -158,17 +158,39 @@ class Icons extends Component
         $filePath = $folderPath . DIRECTORY_SEPARATOR . $icon->filename;
         $this->_checkDirectory($folderPath);
         $this->saveIconBody($filePath, $icon->body);
-        $record = new IconRecord();
+        $this->saveIconRecord($icon);
+    }
+
+    /**
+     * @throws Exception
+     * @throws \yii\db\Exception
+     */
+    public function saveIconRecord(IconModel $icon): void
+    {
+        $record = IconRecord::find()
+            ->where([
+                'name' => $icon->name,
+                'set' => $icon->set,
+            ])
+            ->one();
+        if (!$record) {
+            // Create a new record if it doesn't exist
+            $record = new IconRecord();
+        }
+
+        // Set or update the fields
         $record->name = $icon->name;
         $record->set = $icon->set;
         $record->filename = $icon->filename;
         $record->prefixId = $icon->prefixId;
         $record->suffixId = $icon->suffixId;
+
         if (!$record->save()) {
             throw new Exception(Craft::t('icons', 'Unable to save icon.'));
         }
-        $icon->id = $record->id;
 
+        // Set the ID back on the $icon object
+        $icon->id = $record->id;
     }
 
     /**
@@ -186,14 +208,25 @@ class Icons extends Component
      */
     public function deleteIconSet(string $iconSet): void
     {
-//        $folderPath = $this->getIconSetDirectory($iconSet);
-//        if (is_dir($folderPath)) {
-//            FileHelper::removeDirectory($folderPath);
-//        }
+        $folderPath = $this->getIconSetDirectory($iconSet);
+        if (is_dir($folderPath)) {
+            FileHelper::removeDirectory($folderPath);
+        }
+
+        $this->deleteIconSetAffixes($iconSet);
+        IconRecord::deleteAll(['set' => $iconSet]);
+        $this->clearIconCache($iconSet);
+
+    }
+
+    public function deleteIconSetAffixes(string $iconSet): void
+    {
 
         AffixRecord::deleteAll(['iconSet' => $iconSet]);
+    }
 
-        IconRecord::deleteAll(['set' => $iconSet]);
+    public function clearIconCache(string $iconSet): void
+    {
         $cache = Craft::$app->getCache();
         $keyListKey = sprintf('iconify-picker-options-list-html-%s-keys', $iconSet);
         $keyList = $cache->get($keyListKey) ?: [];
@@ -203,7 +236,6 @@ class Icons extends Component
         }
         $cache->delete($keyListKey);
     }
-
     public function getIconSetDirectory(string $iconSet): string
     {
         return Craft::getAlias("@storage/iconify/icons/{$iconSet}");

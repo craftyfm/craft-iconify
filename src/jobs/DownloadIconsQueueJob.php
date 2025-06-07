@@ -24,7 +24,7 @@ class DownloadIconsQueueJob extends BaseJob
     {
 
         $iconList = Plugin::getInstance()->iconify->getIconList($this->iconSet);
-        Plugin::getInstance()->icons->deleteIconSet($this->iconSet);
+        Plugin::getInstance()->icons->deleteIconSetAffixes($this->iconSet);
         $prefixes = [];
         $suffixes = [];
         foreach ($iconList['prefixes'] as $prefix => $label) {
@@ -37,7 +37,7 @@ class DownloadIconsQueueJob extends BaseJob
             $suffixes[$suffix] = $id;
         }
         $this->_saveIcons($iconList['icons'], $prefixes, $suffixes, $queue);
-
+        Plugin::getInstance()->icons->clearIconCache($this->iconSet);
     }
 
 
