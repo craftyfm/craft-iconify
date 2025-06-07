@@ -5,6 +5,7 @@ namespace craftfm\iconify\services;
 use Craft;
 use craft\base\Component;
 use craft\helpers\FileHelper;
+use craftfm\iconify\records\AffixRecord;
 use craftfm\iconify\records\IconRecord;
 use Twig\Markup;
 use yii\base\ErrorException;
@@ -101,26 +102,68 @@ class Icons extends Component
         return new Markup('', 'UTF-8');
     }
 
+    /**
+     * @throws \yii\db\Exception
+     */
+    public function saveIconAffix(string $iconSet, string $affix, string $label, string $type): ?int
+    {
+        if ($affix === '') {
+            return null;
+        }
+        $record = new AffixRecord();
+        $record->iconSet = $iconSet;
+        $record->slug = $affix;
+        $record->name = $label;
+        $record->type = $type;
+        $record->save();
+        return $record->id;
+    }
 
+    public function getPrefixFromName(string $name, array $prefixes): ?string
+    {
+        foreach ($prefixes as $prefix ) {
+            if ($prefix === '') {
+                return null;
+            }
+            if (str_starts_with($name, $prefix)) {
+                return $prefix;
+            }
+        }
+        return null;
+    }
+
+    public function getSuffixFromName(string $name, array $suffixes): ?string
+    {
+        foreach ($suffixes as $suffix ) {
+            if ($suffix === '') {
+                return null; // Default if no suffix matches
+            }
+            if (str_ends_with($name, $suffix)) {
+                return $suffix;
+            }
+        }
+        return null;
+    }
+    public function iconFilename(string $iconName): string
+    {
+        return $iconName . '.svgfrag';
+    }
     /**
      * @throws \yii\db\Exception
      * @throws Exception
      */
     public function saveIcon(IconModel $icon): void
     {
-        if (!isset($icon->filename)) {
-            $icon->filename = $icon->name . '.svgfrag';
-        }
         $folderPath = $this->getIconSetDirectory($icon->set);
         $filePath = $folderPath . DIRECTORY_SEPARATOR . $icon->filename;
         $this->_checkDirectory($folderPath);
         $this->saveIconBody($filePath, $icon->body);
         $record = new IconRecord();
-        $record->name = $icon;
+        $record->name = $icon->name;
         $record->set = $icon->set;
         $record->filename = $icon->filename;
-        $record->prefix = $icon->prefix;
-        $record->suffix = $icon->suffix;
+        $record->prefixId = $icon->prefixId;
+        $record->suffixId = $icon->suffixId;
         if (!$record->save()) {
             throw new Exception(Craft::t('icons', 'Unable to save icon.'));
         }
@@ -128,6 +171,9 @@ class Icons extends Component
 
     }
 
+    /**
+     * @throws Exception
+     */
     public function saveIconBody(string $path, string $iconBody): void
     {
         if (!file_put_contents($path, $iconBody)) {
@@ -144,6 +190,8 @@ class Icons extends Component
         if (is_dir($folderPath)) {
             FileHelper::removeDirectory($folderPath);
         }
+
+        AffixRecord::deleteAll(['iconSet' => $iconSet]);
 
         IconRecord::deleteAll(['set' => $iconSet]);
         $cache = Craft::$app->getCache();

@@ -25,10 +25,10 @@ class DownloadIconsController extends Controller
         $settings = Plugin::$plugin->getSettings();
         if ($iconSet === '*' || $iconSet === null) {
             foreach ($settings->iconSets as $set) {
-                $this->_downloadIcon($set);
+                $this->_processIconSet($set);
             }
         } else {
-            $this->_downloadIcon($iconSet);
+            $this->_processIconSet($iconSet);
         }
 
         return ExitCode::OK;
@@ -40,23 +40,54 @@ class DownloadIconsController extends Controller
      * @throws GuzzleException
      * @throws \yii\base\Exception
      */
-    private function _downloadIcon($iconSet): void
+    private function _processIconSet($iconSet): void
     {
-        $icons = Plugin::getInstance()->iconify->getIconList($iconSet);
-        $batch = Plugin::getInstance()->iconify->batchIconSet($iconSet, $icons);
+        $iconList = Plugin::getInstance()->iconify->getIconList($iconSet);
         Plugin::getInstance()->icons->deleteIconSet($iconSet);
+
+        $prefixes = [];
+        $suffixes = [];
+        foreach ($iconList['prefixes'] as $prefix => $label) {
+            $id = Plugin::getInstance()->icons->saveIconAffix($iconSet, $prefix, $label, 'prefix');
+            $prefixes[$prefix] = $id;
+        }
+
+        foreach ($iconList['suffixes'] as $suffix => $label) {
+            $id = Plugin::getInstance()->icons->saveIconAffix($iconSet, $suffix, $label, 'suffix');
+            $suffixes[$suffix] = $id;
+        }
+        $this->_saveIcons($iconSet, $iconList['icons'], $prefixes, $suffixes);
+    }
+
+    /**
+     * @throws Exception
+     * @throws \yii\base\Exception
+     * @throws GuzzleException
+     */
+    private function _saveIcons(string $iconSet, array $iconList, array $prefixes, array $suffixes): void
+    {
+        $sf = array_keys($suffixes);
+        $pf = array_keys($prefixes);
+        usort($sf, function($a, $b) {
+            return strlen($b) <=> strlen($a);
+        });
+        usort($pf, function($a, $b) {
+            return strlen($b) <=> strlen($a);
+        });
+        $batch = Plugin::getInstance()->iconify->batchIconSet($iconSet, $iconList);
         $total = count($batch);
-        $iconData = [];
         for ($i = 0; $i < $total; $i++) {
-            $iconBody = Plugin::getInstance()->iconify->getIconsData($iconSet, array_keys($batch[$i]));
-            $iconData = array_merge($iconData, $iconBody);
+            $iconBody = Plugin::getInstance()->iconify->getIconsData($iconSet, $batch[$i]);
             foreach ($iconBody as $key => $value) {
+                $suffix = Plugin::getInstance()->icons->getSuffixFromName($key, $sf);
+                $prefix = Plugin::getInstance()->icons->getPrefixFromName($key, $pf);
                 $icon = new Icon();
                 $icon->name = $key;
                 $icon->set = $iconSet;
                 $icon->body = $value['body'];
-                $icon->prefix = $batch[$i][$key]['prefix'] ?? null;
-                $icon->suffix = $batch[$i][$key]['suffix'] ?? null;
+                $icon->filename = Plugin::getInstance()->icons->iconFilename($key);
+                $icon->prefixId = $prefix && $prefix !== '' ? $prefixes[$prefix] : null;
+                $icon->suffixId = $suffix && $suffix !== '' ? $suffixes[$suffix] : null;
                 Plugin::getInstance()->icons->saveIcon($icon);
             }
         }

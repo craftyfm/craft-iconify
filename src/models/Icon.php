@@ -10,8 +10,8 @@ class Icon extends Model
     public string $name;
     public string $set;
     public string $filename;
-    public ?string $prefix;
-    public ?string $suffix;
+    public ?string $prefixId;
+    public ?string $suffixId;
     public string $body;
 
     public function rules(): array
@@ -20,8 +20,6 @@ class Icon extends Model
             [['name', 'set', 'svg'], 'required'],
             [['name', 'set'], 'string', 'max' => 255],
             ['path', 'string'],
-            ['prefix', 'string'],
-            ['suffix', 'string'],
         ];
     }
 }

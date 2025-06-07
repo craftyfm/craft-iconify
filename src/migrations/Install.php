@@ -20,8 +20,19 @@ class Install extends Migration
             'name' => $this->string()->notNull(), // icon name
             'set' => $this->string()->notNull(),  // icon set (e.g. mdi-light)
             'filename' => $this->text()->notNull(),
-            'prefix' => $this->text(),
-            'suffix' => $this->text(),
+            'prefixId' => $this->integer()->null(),
+            'suffixId' => $this->integer()->null(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->createTable('{{%iconify_affixes}}', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()->notNull(),
+            'slug' => $this->string()->notNull(),
+            'iconSet' => $this->string()->notNull(),
+            'type' => $this->enum('type', ['prefix', 'suffix'])->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -42,6 +53,7 @@ class Install extends Migration
     public function safeDown(): bool
     {
         $this->dropTableIfExists('{{%iconify_icons}}');
+        $this->dropTableIfExists('{{%iconify_affixes}}');
         return true;
     }
 }

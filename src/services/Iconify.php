@@ -55,12 +55,21 @@ class Iconify extends Component
 
     public function getIconList(string $setKey): array
     {
+        $ret = [
+            'prefixes' => [],
+            'suffixes' => [],
+            'icons' => []
+        ];
 
         try {
             $data = $this->_requestApiIconList($setKey);
 
-            $prefixes = $data['prefixes'] ?? [];
-            $suffixes = $data['suffixes'] ?? [];
+            if (isset($data['prefixes'])) {
+                $ret['prefixes'] = $data['prefixes'];
+            }
+            if (isset($data['suffixes'])) {
+                $ret['suffixes'] = $data['suffixes'];
+            }
 
             $icons = [];
 
@@ -75,42 +84,26 @@ class Iconify extends Component
             }
 
             // Normalize and deduplicate icons
-            $variants = [];
+            $finalIcons = [];
 
             foreach ($icons as $icon) {
-                $variants[$icon] = []; // original name
+                $variants = [$icon]; // original name
 
-                // add prefixed versions
-                foreach ($prefixes as $prefix) {
-                    $variants[$prefix . '-' . $icon] = [
-                        'prefix' => $prefix
-                    ] ;
+                // Add all variants to the final list
+                foreach ($variants as $v) {
+                    $finalIcons[$v] = true; // use associative array to avoid duplicates
                 }
-
-                // add suffixed versions
-                foreach ($suffixes as $suffix) {
-                    $variants[$icon . '-' .$suffix] = [
-                        'suffix' => $suffix
-                    ];
-                }
-
-                // add prefix + icon + suffix combinations
-                foreach ($prefixes as $prefix) {
-                    foreach ($suffixes as $suffix) {
-                        $variants[$prefix . '-' . $icon . '-' . $suffix] = [
-                            'prefix' => $prefix,
-                            'suffix' => $suffix
-                        ];
-                    }
-                }
-
             }
 
-            return $variants;
+            // Convert keys back to list
+            $ret['icons'] = array_keys($finalIcons);
+
         } catch (Exception|GuzzleException $e) {
             Craft::error($e->getMessage(), __METHOD__);
-            return [];
+            return $ret;
         }
+
+        return $ret;
     }
 
     public function batchIconSet(string $setKey, array $iconKeys): array
@@ -121,16 +114,16 @@ class Iconify extends Component
         $currentBatch = [];
         $currentLength = 0;
 
-        foreach ($iconKeys as $key => $val) {
+        foreach ($iconKeys as $key) {
             $iconLength = strlen($key) + (!empty($currentBatch) ? 1 : 0);
             if ($currentLength + $iconLength > $maxLength) {
                 $batch[] = $currentBatch;
 
-                $currentBatch[$key] = [$val];
+                $currentBatch = [$key];
                 $currentLength = strlen($key);
             } else {
                 // Add icon to current batch and update length
-                $currentBatch[$key] = $val;
+                $currentBatch[] = $key;
                 $currentLength += $iconLength;
             }
         }

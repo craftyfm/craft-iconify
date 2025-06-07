@@ -59,11 +59,11 @@ class SettingsController extends Controller
             return null;
         }
 
-        foreach ($settings->iconSets as $iconSet) {
-            Craft::$app->queue->push(new DownloadIconsQueueJob([
-                'iconSet' => $iconSet,
-            ]));
-        }
+//        foreach ($settings->iconSets as $iconSet) {
+//            Craft::$app->queue->push(new DownloadIconsQueueJob([
+//                'iconSet' => $iconSet,
+//            ]));
+//        }
         Craft::$app->getSession()->setNotice('Settings saved.');
         return $this->redirectToPostedUrl();
     }
