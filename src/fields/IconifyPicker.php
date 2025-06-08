@@ -133,7 +133,7 @@ class IconifyPicker extends Field implements InlineEditableFieldInterface, Thumb
             'iconColor' => $value ? $value->color : null,
             'iconStrokeWidth' => $value ? $value->strokeWidth : null,
             'iconSets' => $iconSets,
-            "defaultSet" => $iconSets ? array_key_first($iconSets): ""
+            "defaultSet" => $value ? $value->set: ""
         ];
         return Craft::$app->getView()->renderTemplate('iconify/_fields/icon-picker.twig', $config, View::TEMPLATE_MODE_CP);
 

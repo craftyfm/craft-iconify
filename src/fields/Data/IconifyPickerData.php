@@ -3,9 +3,9 @@
 namespace craftfm\iconify\fields\Data;
 
 use craft\base\Serializable;
-use yii\base\BaseObject;
+use craftfm\iconify\Plugin;
 
-class IconifyPickerData  implements Serializable
+class IconifyPickerData implements Serializable
 {
     public ?string $name = null;
     public ?string $set = null;
@@ -20,6 +20,15 @@ class IconifyPickerData  implements Serializable
         $this->strokeWidth = $strokeWidth;
     }
 
+    public function __toString(): string
+    {
+        return  Plugin::getInstance()->icons->getIconSvg($this->name, $this->set, $this->color, $this->strokeWidth);
+    }
+
+    public function __()
+    {
+
+    }
     public function serialize(): array
     {
        return array_filter([
@@ -28,5 +37,10 @@ class IconifyPickerData  implements Serializable
            'color' => $this->color,
            'strokeWidth' => $this->strokeWidth
        ]);
+    }
+
+    public function getValue(): string
+    {
+        return $this->name;
     }
 }

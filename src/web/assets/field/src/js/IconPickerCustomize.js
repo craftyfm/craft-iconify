@@ -40,7 +40,7 @@ Craft.IconifyCustomize = Craft.BaseInputGenerator.extend(
 
         },
         triggerModal() {
-            const color = this.$inputColor.val();
+            const color = this.$inputColor.val().replace(/^#/, '');
             const $svg = $(this.$preview.html());
             const strokeWidth = this.$inputStrokeWidth.val();
             this.$svg = $svg.get(0);
@@ -53,7 +53,7 @@ Craft.IconifyCustomize = Craft.BaseInputGenerator.extend(
             this.modal.show();
         },
         createModal() {
-            const color = this.$inputColor.val();
+            const color = this.$inputColor.val().replace(/^#/, '');
             const strokeWidth = this.$inputStrokeWidth.val();
             const $container = $('<div class="modal craftyfm-iconify-customize-modal"/>');
             const $body = $('<div class="body"/>').appendTo($container);
