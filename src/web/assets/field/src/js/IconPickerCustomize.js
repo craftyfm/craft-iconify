@@ -25,7 +25,6 @@ Craft.IconifyCustomize = Craft.BaseInputGenerator.extend(
             this.addListener(this.$preview, 'activate', () => {
                 this.showModal();
             });
-            console.log(settings)
         },
 
         showModal() {
@@ -131,7 +130,7 @@ Craft.IconifyCustomize = Craft.BaseInputGenerator.extend(
             }
         },
         updateIconStrokeWidth(width) {
-            this.$svg.setAttribute('stroke-width', width);
+            this.$svg.setAttribute('stroke-width', width ? width : 0);
             this.$strokeInfo.text(`${width ? width : 0}px`);
         },
         applyChanges() {

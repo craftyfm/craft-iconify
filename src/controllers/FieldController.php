@@ -29,24 +29,37 @@ class FieldController extends Controller
         $set  = $this->request->getRequiredBodyParam('set');
         $page = (int)$this->request->getBodyParam('page') ? (int) $this->request->getBodyParam('page') : 1;
         $noSearch = $search === '';
-        $affix = $this->request->getBodyParam('affix');
+        $affixId = $this->request->getBodyParam('affix');
+        $affixes = Plugin::getInstance()->icons->getIconSetAffixes($set);
+
+        $affixOptions = [
+            '' => 'All'
+        ];
+
+        foreach ($affixes as $affix) {
+            $affixOptions[$affix['id']] = $affix['name'];
+        }
+
         $cache = Craft::$app->getCache();
         $cacheKey = sprintf('iconify-picker-options-list-html-%s-%s', $set, $page);
-        if ($noSearch && $affix === '') {
+        if ($noSearch && ($affixId === null || $affixId === '')) {
             $listHtml = $cache->get($cacheKey);
             if ($listHtml !== false) {
                 return $this->asJson([
                     'listHtml' => $listHtml,
+                    'affixOptions' => $affixOptions,
+                    'selectedAffix' => $affixId,
                 ]);
             }
             $searchTerms = null;
         } else {
             $searchTerms = explode(' ', Search::normalizeKeywords($search));
         }
-
-        $icons = Plugin::getInstance()->icons->getIconsModel([
-           'set' => $set
-        ], $perPage, $page*$perPage);
+        $params = ['set' => $set];
+        if ($affixId && $affixId !== '') {
+            $params['affixId'] = $affixId;
+        }
+        $icons = Plugin::getInstance()->icons->getIconsModel($params, $perPage, ($page-1)*$perPage);
 
         $output = [];
         $scores = [];
@@ -79,13 +92,15 @@ class FieldController extends Controller
 
         $listHtml = implode('', $output);
 
-        if ($noSearch && $affix === '') {
+        if ($noSearch && ($affixId === null || $affixId === '')) {
             /** @phpstan-ignore-next-line */
             $cache->set($cacheKey, $listHtml);
         }
 
         return $this->asJson([
             'listHtml' => $listHtml,
+            'affixOptions' => $affixOptions,
+            'selectedAffix' => $affixId,
         ]);
     }
 

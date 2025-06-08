@@ -26,7 +26,13 @@ class Icons extends Component
 
         // Apply filtering options dynamically
         foreach ($options as $attribute => $value) {
-            $query->andWhere([$attribute => $value]);
+            if ($attribute === 'affixId') {
+                $query->andWhere(
+                  ['OR', ['suffixId' => $value], ['prefixId' => $value]]
+                );
+            } else {
+                $query->andWhere([$attribute => $value]);
+            }
         }
 
         if ($limit !== null) {
@@ -144,6 +150,11 @@ class Icons extends Component
             }
         }
         return null;
+    }
+
+    public function getIconSetAffixes(string $iconSet): array
+    {
+        return AffixRecord::findAll(['iconSet' => $iconSet]);
     }
     public function iconFilename(string $iconName): string
     {

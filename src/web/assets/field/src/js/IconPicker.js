@@ -18,6 +18,8 @@ Craft.IconifyPicker = Craft.BaseInputGenerator.extend(
         $searchInput: null,
         $iconListContainer: null,
         $iconList: null,
+        $affixOptions: null,
+        $affixOptionsContainer:null,
 
         get listLength() {
             return this.$iconList.find('li').length;
@@ -90,7 +92,7 @@ Craft.IconifyPicker = Craft.BaseInputGenerator.extend(
             );
 
             const $footer = $(
-                '<div class="footer"/>'
+                '<div class="flex mb-2"/>'
             ).appendTo($body);
 
             this.$setOptions = Craft.ui
@@ -102,6 +104,13 @@ Craft.IconifyPicker = Craft.BaseInputGenerator.extend(
                 })
                 .appendTo($footer);
 
+             this.$affixOptionsContainer = Craft.ui.createSelect({
+                id: 'affixOptions',
+                name: 'affixOptions',
+                options: [],
+                class: 'hidden'
+            }).appendTo($footer);
+            this.$affixOptions = this.$affixOptionsContainer.children('#affixOptions');
 
             this.$iconList.on('scroll.infiniteScroll', $.proxy(this.onScroll, this));
 
@@ -114,7 +123,14 @@ Craft.IconifyPicker = Craft.BaseInputGenerator.extend(
                 this.cleanState();
                 this.updateIcons();
                 this.$iconList.scrollTop(0);
-            })
+            });
+
+            this.addListener(this.$affixOptions, 'select,change', () =>{
+                this.cleanState();
+                this.updateIcons();
+                this.$iconList.scrollTop(0);
+            });
+
             this.addListener(this.$searchInput, 'input,change', () => {
                 if (this.$searchInput.val()) {
                     $clearBtn.removeClass('hidden');
@@ -188,6 +204,7 @@ Craft.IconifyPicker = Craft.BaseInputGenerator.extend(
             this.loading = true;
             const search = this.$searchInput.val();
             const set =  $('#iconSet').val();
+            const affix = this.$affixOptions.val();
 
             this.$iconListContainer.addClass('loading');
             Craft.cp.announce(Craft.t('app', 'Loading'));
@@ -202,12 +219,33 @@ Craft.IconifyPicker = Craft.BaseInputGenerator.extend(
                         data: {
                             search,
                             set,
+                            affix,
                             page: this.currentPage,
                         },
                         cancelToken: this.cancelToken.token,
                     }
                 );
                 const listHtml = response.data.listHtml;
+                this.$affixOptions.empty();
+                if (Object.keys(response.data.affixOptions).length > 1) {
+                    // this.$affixOptions
+                    $('<option/>', {
+                        value: '',
+                        text: response.data.affixOptions['']
+                    }).appendTo(this.$affixOptions);
+                    $.each(response.data.affixOptions, (key, label) => {
+                        if (key !== '') {
+                            $('<option/>', {
+                                value: key,
+                                text: label,
+                                selected: key === response.data.selectedAffix
+                            }).appendTo(this.$affixOptions);
+                        }
+                    });
+                    this.$affixOptionsContainer.removeClass('hidden');
+                } else {
+                    this.$affixOptionsContainer.addClass('hidden')
+                }
 
                 return listHtml;
             } finally {
