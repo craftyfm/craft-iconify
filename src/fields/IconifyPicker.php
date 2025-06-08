@@ -14,7 +14,9 @@ use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\web\twig\TemplateLoaderException;
 use craft\web\View;
+use craftfm\iconify\fields\Data\IconifyPickerData;
 use craftfm\iconify\Plugin;
+use craftfm\iconify\services\Iconify;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -53,15 +55,21 @@ class IconifyPicker extends Field implements InlineEditableFieldInterface, Thumb
      */
     public static function phpType(): string
     {
-        return 'string|null';
+        return sprintf('\\%s|null', IconifyPickerData::class);
     }
 
     /**
      * @inheritdoc
      */
-    public static function dbType(): string
+    public static function dbType(): array
     {
-        return Schema::TYPE_STRING;
+        return [
+            'value' => Schema::TYPE_STRING,
+            'name' => Schema::TYPE_STRING,
+            'set' => Schema::TYPE_STRING,
+            'color' => Schema::TYPE_STRING,
+            'strokeWidth' => Schema::TYPE_FLOAT,
+        ];
     }
 
 
@@ -79,7 +87,22 @@ class IconifyPicker extends Field implements InlineEditableFieldInterface, Thumb
      */
     public function normalizeValue(mixed $value, ?ElementInterface $element): mixed
     {
-        return ($value || $value === '0') ? $value : null;
+        if ($value instanceof IconifyPickerData) {
+            return $value;
+        }
+
+        if(!is_array($value)) {
+            return null;
+        }
+
+        if (!isset($value['set']) || !isset($value['name'])) {
+            return null;
+        }
+        $name = $value['name'];
+        $set = $value['set'];
+        $color = $value['color'] ?? null;
+        $strokeWidth = isset($value['strokeWidth']) ? floatval($value['strokeWidth']) : null;
+        return new IconifyPickerData($name, $set, $color, $strokeWidth);
     }
 
     /**
@@ -100,11 +123,15 @@ class IconifyPicker extends Field implements InlineEditableFieldInterface, Thumb
         foreach ($settings->iconSets as $key) {
             $iconSets[$key] = $iconSetList[$key]['name'] ?? $key;
         }
+
         $config = [
             'id' => $this->getInputId(),
             'describedBy' => $this->describedBy,
             'name' => $this->handle,
-            'value' => $value,
+            'iconName' => $value ? $value->name : null,
+            'iconSet' => $value ? $value->set : null,
+            'iconColor' => $value ? $value->color : null,
+            'iconStrokeWidth' => $value ? $value->strokeWidth : null,
             'iconSets' => $iconSets,
             "defaultSet" => $iconSets ? array_key_first($iconSets): ""
         ];

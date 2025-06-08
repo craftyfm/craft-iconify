@@ -9,7 +9,8 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
         $preview: null,
         $chooseBtn: null,
         $removeBtn: null,
-        $input: null,
+        $inputName: null,
+        $inputSet: null,
 
         currentPage: 1,
         modal: null,
@@ -30,8 +31,14 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
             this.$preview = this.$container.children('.icon-picker--icon');
             this.$chooseBtn = this.$container.children('.icon-picker--choose-btn');
             this.$removeBtn = this.$container.children('.icon-picker--remove-btn');
-            this.$input = this.$container.children('input');
+            const fieldName = settings.fieldsNamePrefix + '[name]';
+            const fieldSet = settings.fieldsNamePrefix + '[set]';
+            this.$inputName = this.$container.find(`input[name="${fieldName}"]`);
+            this.$inputSet = this.$container.find(`input[name="${fieldSet}"]`);
 
+
+            console.log(this.$inputName,fieldName);
+            console.log("Araa")
             this.addListener(this.$chooseBtn, 'activate', () => {
                 this.showModal();
             });
@@ -225,7 +232,8 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
         selectIcon($button) {
             this.modal.hide();
             const name = $button.attr('title');
-            const handle = $button.attr('data-handle');
+            const iconName = $button.attr('data-iconName');
+            const iconSet = $button.attr('data-iconSet');
             this.$preview
                 .html($button.html())
                 .attr('title', name)
@@ -233,7 +241,8 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
                 .attr('role', 'img');
 
             this.updateLangAttribute(this.$preview);
-            this.$input.val(handle);
+            this.$inputName.val(iconName);
+            this.$inputSet.val(iconSet);
             this.$chooseBtn.children('.label').text(Craft.t('app', 'Change'));
             this.$chooseBtn.focus();
             this.$removeBtn.removeClass('hidden');

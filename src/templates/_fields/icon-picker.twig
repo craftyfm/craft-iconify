@@ -5,8 +5,7 @@
 {% set small = small ?? false %}
 {% set static = static ?? false %}
 
-{% set hasValue = value or value is same as('0') %}
-{% set parts = value|split(':') %}
+{% set hasValue = iconName and iconSet %}
 {% tag 'div' with {
     id,
     class: {
@@ -27,8 +26,7 @@
         },
     } %}
         {% if hasValue %}
-            {% set parts = value|split(':') %}
-            {{ iconify(parts[0], parts[1]) }}
+            {{ iconify(iconSet, iconName) }}
         {% endif %}
     {% endtag %}
 
@@ -52,13 +50,19 @@
         }) }}
 
         {% if name ?? false %}
-            {{ hiddenInput(name, value ?? '') }}
+            {{- hiddenInput("#{name}[name]", iconName) -}}
+            {{- hiddenInput("#{name}[set]", iconSet) -}}
+            {{- hiddenInput("#{name}[color]", iconColor ?? '') -}}
+            {{- hiddenInput("#{name}[strokeWidth]", iconStrokeWidth ?? '') -}}
         {% endif %}
+
     {% endif %}
 {% endtag %}
+{% set fieldsNamePrefix = "fields[#{name}]" %}
 {% js %}
 new Craft.iconify('#{{ id|namespaceInputId }}', {
     iconSets: {{ iconSets|json_encode|raw }},
-    defaultSet: "{{ defaultSet|raw }}"
+    defaultSet: "{{ defaultSet|raw }}",
+    fieldsNamePrefix: "{{ fieldsNamePrefix|raw }}"
   });
 {% endjs %}

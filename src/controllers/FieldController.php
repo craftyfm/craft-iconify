@@ -23,16 +23,16 @@ class FieldController extends Controller
 //        $this->requireCpRequest();
 //        $this->requireAcceptsJson();
 
-        $perPage = 200;
+        $perPage = 1000;
 
         $search = $this->request->getRequiredBodyParam('search');
         $set  = $this->request->getRequiredBodyParam('set');
         $page = (int)$this->request->getBodyParam('page') ? (int) $this->request->getBodyParam('page') : 1;
         $noSearch = $search === '';
-
-        if ($noSearch) {
-            $cache = Craft::$app->getCache();
-            $cacheKey = sprintf('iconify-picker-options-list-html-%s-%s', $set, $page);
+        $affix = $this->request->getBodyParam('affix');
+        $cache = Craft::$app->getCache();
+        $cacheKey = sprintf('iconify-picker-options-list-html-%s-%s', $set, $page);
+        if ($noSearch && $affix === '') {
             $listHtml = $cache->get($cacheKey);
             if ($listHtml !== false) {
                 return $this->asJson([
@@ -64,7 +64,8 @@ class FieldController extends Controller
                 Html::button($svg, [
                     'class' => 'icon-picker--icon',
                     'title' => $icon->name,
-                    'data-handle' => "$set:$icon->name",
+                    'data-iconName' => "$icon->name",
+                    'data-iconSet' => "$icon->set",
                     'aria' => [
                         'label' => $icon->name,
                     ],
@@ -78,7 +79,7 @@ class FieldController extends Controller
 
         $listHtml = implode('', $output);
 
-        if ($noSearch) {
+        if ($noSearch && $affix === '') {
             /** @phpstan-ignore-next-line */
             $cache->set($cacheKey, $listHtml);
         }
