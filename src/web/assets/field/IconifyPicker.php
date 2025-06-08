@@ -17,6 +17,11 @@ class IconifyPicker extends AssetBundle
 
         $this->js = [
             'js/IconPicker.js',
+            'js/IconPickerCustomize.js',
+        ];
+
+        $this->css = [
+            'css/iconify-picker.css',
         ];
 
         parent::init();

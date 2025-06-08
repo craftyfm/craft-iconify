@@ -3,7 +3,7 @@
 /**
  * Icon Picker
  */
-Craft.iconify = Craft.BaseInputGenerator.extend(
+Craft.IconifyPicker = Craft.BaseInputGenerator.extend(
     {
         $container: null,
         $preview: null,
@@ -25,7 +25,7 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
 
         init(container, settings) {
             this.$container = $(container);
-            this.setSettings(settings, Craft.IconPicker.defaults);
+            this.setSettings(settings, Craft.IconifyPicker.defaults);
             this.hasMore = true;
             this.loading = false;
             this.$preview = this.$container.children('.icon-picker--icon');
@@ -35,10 +35,6 @@ Craft.iconify = Craft.BaseInputGenerator.extend(
             const fieldSet = settings.fieldsNamePrefix + '[set]';
             this.$inputName = this.$container.find(`input[name="${fieldName}"]`);
             this.$inputSet = this.$container.find(`input[name="${fieldSet}"]`);
-
-
-            console.log(this.$inputName,fieldName);
-            console.log("Araa")
             this.addListener(this.$chooseBtn, 'activate', () => {
                 this.showModal();
             });

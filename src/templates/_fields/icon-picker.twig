@@ -5,6 +5,7 @@
 {% set small = small ?? false %}
 {% set static = static ?? false %}
 
+{% set fieldsNamePrefix = "fields[#{name}]" %}
 {% set hasValue = iconName and iconSet %}
 {% tag 'div' with {
     id,
@@ -58,11 +59,17 @@
 
     {% endif %}
 {% endtag %}
-{% set fieldsNamePrefix = "fields[#{name}]" %}
+
+{#{% include 'iconify/_fields/icon-setting-modal' %}#}
+
 {% js %}
-new Craft.iconify('#{{ id|namespaceInputId }}', {
+new Craft.IconifyPicker('#{{ id|namespaceInputId }}', {
     iconSets: {{ iconSets|json_encode|raw }},
     defaultSet: "{{ defaultSet|raw }}",
     fieldsNamePrefix: "{{ fieldsNamePrefix|raw }}"
   });
+
+new Craft.IconifyCustomize('#{{ id|namespaceInputId }}', {
+    fieldsNamePrefix: "{{ fieldsNamePrefix|raw }}"
+});
 {% endjs %}
