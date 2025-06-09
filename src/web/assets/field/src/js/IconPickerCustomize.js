@@ -109,7 +109,7 @@ Craft.IconifyCustomize = Craft.BaseInputGenerator.extend(
                 this.applyChanges()
             })
 
-            this.updateIconColor(color);
+            this.updateIconColor(`#${color}`);
             this.updateIconStrokeWidth(strokeWidth);
             this.modal = new Garnish.Modal($container);
         },

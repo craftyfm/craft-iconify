@@ -10,6 +10,11 @@ use craft\base\Model;
  */
 class Settings extends Model
 {
+    public const LOCAL_STORAGE = 'local';
+    public const DATABASE_STORAGE = 'database';
+
+    public string $storage = self::LOCAL_STORAGE;
+
     public array $iconSets = [];
 
     public function rules(): array

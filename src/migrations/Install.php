@@ -19,7 +19,8 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(), // icon name
             'set' => $this->string()->notNull(),  // icon set (e.g. mdi-light)
-            'filename' => $this->text()->notNull(),
+            'filename' => $this->string(),
+            'body' => $this->text(),
             'prefixId' => $this->integer()->null(),
             'suffixId' => $this->integer()->null(),
             'dateCreated' => $this->dateTime()->notNull(),

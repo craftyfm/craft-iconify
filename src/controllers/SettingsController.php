@@ -23,8 +23,12 @@ class SettingsController extends Controller
     {
         $collections = Plugin::getInstance()->iconify->getCategories();
         $settings = Plugin::getInstance()->getSettings();
+        $storages = [
+            $settings::LOCAL_STORAGE => 'Local Storage',
+            $settings::DATABASE_STORAGE => 'Database'
+        ];
         return $this->renderTemplate('iconify/_settings', [
-            'settings' => $settings, 'collections' => $collections
+            'settings' => $settings, 'collections' => $collections, 'storages' => $storages
         ]);
     }
 
@@ -35,9 +39,10 @@ class SettingsController extends Controller
     public function actionSave(): ?Response
     {
         $iconSets = $this->request->getBodyParam('iconSets');
-
+        $storage = $this->request->getBodyParam('storageSetting');
         $settings = Plugin::getInstance()->getSettings();
         $settings->iconSets = $iconSets ?: [];
+        $settings->storage = $storage;
 
         if (!$settings->validate()) {
             Craft::$app->getSession()->setError('Could not save plugin settings.');

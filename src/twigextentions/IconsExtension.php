@@ -20,7 +20,7 @@ class IconsExtension extends  AbstractExtension
     public function getFunctions(): array
     {
         return [
-          new TwigFunction('iconify', [Plugin::getInstance()->icons, 'getIcon']),
+          new TwigFunction('iconify', [Plugin::getInstance()->icons, 'renderIcon']),
         ];
     }
 
@@ -30,7 +30,7 @@ class IconsExtension extends  AbstractExtension
             return new Markup('', 'UTF-8');
         }
 
-        return Plugin::getInstance()->icons->getIcon($parts[0], $parts[1]);
+        return Plugin::getInstance()->icons->renderIcon($parts[0], $parts[1]);
     }
 
 

@@ -1,6 +1,12 @@
 {% extends "_layouts/cp" %}
 {% import '_includes/forms.twig' as forms %}
 
+{% css %}
+    .craftyfm-iconify-note {
+        margin-top: -20px;
+        font-size: 0.9rem;
+    }
+{% endcss %}
 {% set fullPageForm = true %}
 {% set title = 'Settings' %}
 
@@ -13,6 +19,20 @@
 } %}
 {% block content %}
     {{ actionInput('iconify/settings/save') }}
+
+    {{
+    forms.selectField({
+        name: 'storageSetting',
+        label: "Storage",
+        id: 'storageSetting',
+        options: storages,
+        instructions: 'Please specify where is the icons will be stored.',
+        value: settings.storage,
+     })
+    }}
+    <p class="craftyfm-iconify-note" style="display: none" data-select="local">⚠️ If you are using containers (like Docker), you may need to re-download icons when the container is rebuilt unless the storage folder is persisted.</p>
+    <p class="craftyfm-iconify-note" style="display: none" data-select="database">⚠️ This may increase your database size, which could impact performance or backup sizes over time.</p>
+
 
     {{
         forms.selectField({
@@ -48,6 +68,17 @@
 {% endblock %}
 
 {% js %}
+
+document.getElementById('storageSetting').addEventListener('change', function (){
+    const selected = this.value;
+
+    console.log(selected);
+    document.querySelectorAll('.craftyfm-iconify-note').forEach(info => {
+        console.log(info);
+        info.style.display = info.dataset.select === selected ? 'block' : 'none';
+    });
+})
+
 document.getElementById('iconCategory').addEventListener('change', function () {
     const selected = this.value;
     document.querySelectorAll('#iconCheckboxGroups .icon-group').forEach(group => {
@@ -57,4 +88,5 @@ document.getElementById('iconCategory').addEventListener('change', function () {
 
 // Trigger on load to show correct group if value is preset
 document.getElementById('iconCategory').dispatchEvent(new Event('change'));
+document.getElementById('storageSetting').dispatchEvent(new Event('change'));
 {% endjs %}

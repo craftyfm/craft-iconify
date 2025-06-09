@@ -120,6 +120,7 @@ Craft.IconifyPicker = Craft.BaseInputGenerator.extend(
             });
 
             this.addListener(this.$setOptions, 'select,change', () =>{
+                this.$affixOptions.val('');
                 this.cleanState();
                 this.updateIcons();
                 this.$iconList.scrollTop(0);

@@ -5,6 +5,8 @@ namespace craftfm\iconify\services;
 use Craft;
 use craft\base\Component;
 use craft\helpers\FileHelper;
+use craft\helpers\StringHelper;
+use craftfm\iconify\Plugin;
 use craftfm\iconify\records\AffixRecord;
 use craftfm\iconify\records\IconRecord;
 use Twig\Markup;
@@ -21,6 +23,7 @@ class Icons extends Component
      */
     public function getIconsModel(array $options = [], int $limit = null, int $offset = null): array
     {
+        $settings = Plugin::getInstance()->getSettings();
         // Start a query on IconRecord
         $query = IconRecord::find();
 
@@ -50,14 +53,20 @@ class Icons extends Component
         $models = [];
 
         // Convert each record to a model instance
+        /**
+         * @var IconRecord $record
+         */
         foreach ($records as $record) {
             $model = new IconModel();
             $model->id = $record->id;
             $model->name = $record->name;
             $model->set = $record->set;
             $model->filename = $record->filename;
-            // assign other properties if any...
-
+            if ($settings->storage === $settings::LOCAL_STORAGE) {
+                $this->_getSvgBodyFromLocalStorage($record->name, $record->set);
+            } else {
+                $model->body = $record->body;
+            }
             $models[] = $model;
         }
 
@@ -83,31 +92,103 @@ class Icons extends Component
             SVG;
     }
 
-    public function getIconSvg(string $icon, string $set, string $color = null, float $stroke = null): string
+    public function getIconSvgMarkup(string $icon, string $set, string $color = null, float $stroke = null): string
     {
-        $path = $this->getIconSetDirectory($set);
-
-        $file = $path . DIRECTORY_SEPARATOR . $icon . '.svgfrag';
-        if (file_exists($file)) {
-            $svgFrag = file_get_contents($file);
-            return $this->buildSvg($svgFrag, $color, $stroke);
+        $settings = Plugin::getInstance()->getSettings();
+        if ($settings->storage === $settings::LOCAL_STORAGE) {
+            return $this->buildSvg($this->_getSvgBodyFromLocalStorage($icon, $set), $color, $stroke);
         }
+        return $this->buildSvg($this->_getSvgBodyFromDatabase($icon, $set), $color, $stroke);
 
-        return  '';
     }
 
-    public function getIcon(string $icon, string $iconSet, string $color = null, float $stroke = null): Markup
+    public function renderIcon(string $icon, string $set, string $color = null, float $stroke = null): Markup
     {
-        $path = $this->getIconSetDirectory($iconSet);
+        $svg = $this->getIconSvgMarkup($icon, $set, $color, $stroke);
+        return new Markup($svg, 'UTF-8');
+    }
 
-        $file = $path . DIRECTORY_SEPARATOR . $icon . '.svgfrag';
-        if (file_exists($file)) {
-            $svgFrag = file_get_contents($file);
-            return new Markup($this->buildSvg($svgFrag, $color, $stroke), 'UTF-8');
+    /**
+     * @throws \yii\db\Exception
+     * @throws Exception
+     */
+    public function saveIcon(IconModel $icon): void
+    {
+        $settings = Plugin::getInstance()->getSettings();
+        if ($settings->storage === $settings::LOCAL_STORAGE) {
+            $folderPath = $this->_getIconSetDirectory($icon->set);
+            $filePath = $folderPath . DIRECTORY_SEPARATOR . $icon->filename;
+            $this->_checkDirectory($folderPath);
+            $this->saveIconBody($filePath, $icon->body);
+        }
+        $this->saveIconRecord($icon);
+    }
+
+    /**
+     * @throws Exception
+     * @throws \yii\db\Exception
+     */
+    public function saveIconRecord(IconModel $icon): void
+    {
+        $settings = Plugin::getInstance()->getSettings();
+        $record = IconRecord::find()
+            ->where([
+                'name' => $icon->name,
+                'set' => $icon->set,
+            ])
+            ->one();
+        if (!$record) {
+            // Create a new record if it doesn't exist
+            $record = new IconRecord();
         }
 
-        return new Markup('', 'UTF-8');
+        // Set or update the fields
+        $record->name = $icon->name;
+        $record->set = $icon->set;
+        if ($settings->storage === $settings::DATABASE_STORAGE) {
+            $record->body = $icon->body;
+            $record->filename = '';
+        } else {
+            $record->body = '';
+            $record->filename = $icon->filename;
+        }
+        $record->prefixId = $icon->prefixId;
+        $record->suffixId = $icon->suffixId;
+
+        if (!$record->save()) {
+            throw new Exception(Craft::t('icons', 'Unable to save icon.'));
+        }
+
+        // Set the ID back on the $icon object
+        $icon->id = $record->id;
     }
+
+    /**
+     * @throws Exception
+     */
+    public function saveIconBody(string $path, string $iconBody): void
+    {
+        if (!file_put_contents($path, $iconBody)) {
+            throw new Exception(Craft::t('icons', 'Unable to save icon.'));
+        }
+    }
+
+    /**
+     * @throws ErrorException
+     */
+    public function deleteIconSet(string $iconSet): void
+    {
+        $folderPath = $this->_getIconSetDirectory($iconSet);
+        if (is_dir($folderPath)) {
+            FileHelper::removeDirectory($folderPath);
+        }
+
+        $this->deleteIconSetAffixes($iconSet);
+        IconRecord::deleteAll(['set' => $iconSet]);
+        $this->clearIconCache($iconSet);
+
+    }
+
 
     /**
      * @throws \yii\db\Exception
@@ -115,6 +196,7 @@ class Icons extends Component
     public function saveIconAffix(string $iconSet, string $affix, string $label, string $type): ?int
     {
         if ($affix === '') {
+//            $affix = StringHelper::slugify($label);
             return null;
         }
         $record = new AffixRecord();
@@ -160,76 +242,8 @@ class Icons extends Component
     {
         return $iconName . '.svgfrag';
     }
-    /**
-     * @throws \yii\db\Exception
-     * @throws Exception
-     */
-    public function saveIcon(IconModel $icon): void
-    {
-        $folderPath = $this->getIconSetDirectory($icon->set);
-        $filePath = $folderPath . DIRECTORY_SEPARATOR . $icon->filename;
-        $this->_checkDirectory($folderPath);
-        $this->saveIconBody($filePath, $icon->body);
-        $this->saveIconRecord($icon);
-    }
 
-    /**
-     * @throws Exception
-     * @throws \yii\db\Exception
-     */
-    public function saveIconRecord(IconModel $icon): void
-    {
-        $record = IconRecord::find()
-            ->where([
-                'name' => $icon->name,
-                'set' => $icon->set,
-            ])
-            ->one();
-        if (!$record) {
-            // Create a new record if it doesn't exist
-            $record = new IconRecord();
-        }
 
-        // Set or update the fields
-        $record->name = $icon->name;
-        $record->set = $icon->set;
-        $record->filename = $icon->filename;
-        $record->prefixId = $icon->prefixId;
-        $record->suffixId = $icon->suffixId;
-
-        if (!$record->save()) {
-            throw new Exception(Craft::t('icons', 'Unable to save icon.'));
-        }
-
-        // Set the ID back on the $icon object
-        $icon->id = $record->id;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function saveIconBody(string $path, string $iconBody): void
-    {
-        if (!file_put_contents($path, $iconBody)) {
-            throw new Exception(Craft::t('icons', 'Unable to save icon.'));
-        }
-    }
-
-    /**
-     * @throws ErrorException
-     */
-    public function deleteIconSet(string $iconSet): void
-    {
-        $folderPath = $this->getIconSetDirectory($iconSet);
-        if (is_dir($folderPath)) {
-            FileHelper::removeDirectory($folderPath);
-        }
-
-        $this->deleteIconSetAffixes($iconSet);
-        IconRecord::deleteAll(['set' => $iconSet]);
-        $this->clearIconCache($iconSet);
-
-    }
 
     public function deleteIconSetAffixes(string $iconSet): void
     {
@@ -255,7 +269,7 @@ class Icons extends Component
         $content = file_get_contents($path);
         return new Markup($content, 'UTF-8');
     }
-    public function getIconSetDirectory(string $iconSet): string
+    private function _getIconSetDirectory(string $iconSet): string
     {
         return Craft::getAlias("@storage/iconify/icons/{$iconSet}");
     }
@@ -266,5 +280,23 @@ class Icons extends Component
         if (!is_dir($folderPath)) {
             mkdir($folderPath, 0755, true);
         }
+    }
+
+    private function _getSvgBodyFromDatabase(string $icon, string $set): string
+    {
+        $record = IconRecord::findOne(['name' => $icon, 'set' => $set]);
+        if ($record) {
+            return $record->body;
+        }
+        return '';
+    }
+    private function _getSvgBodyFromLocalStorage(string $icon, string $set): string
+    {
+        $path = $this->_getIconSetDirectory($set);
+        $file = $path . DIRECTORY_SEPARATOR . $icon . '.svgfrag';
+        if (file_exists($file)) {
+            return file_get_contents($file);
+        }
+        return  '';
     }
 }

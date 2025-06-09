@@ -135,45 +135,6 @@ class Iconify extends Component
         return $batch;
     }
 
-    public function downloadIconSetJson(string $setKey, string $iconDirectory): void
-    {
-        $baseUrl = $this->getIconsApiUrl($setKey);
-        $maxLength = 500 - strlen($baseUrl);
-        $currentBatch = [];
-        $currentLength = 0;
-        $icons = $this->getIconList($setKey);
-        $iconData = [];
-        try {
-            foreach ($icons as $icon) {
-                $iconLength = strlen($icon) + (!empty($currentBatch) ? 1 : 0);
-                if ($currentLength + $iconLength > $maxLength) {
-                    $iconBody = $this->getIconsData($setKey, $currentBatch);
-                    $iconData = array_merge($iconData, $iconBody);
-                    $currentBatch = [$icon];
-                    $currentLength = strlen($icon);
-                } else {
-                    // add icon to batch and update length
-                    $currentBatch[] = $icon;
-                    $currentLength += $iconLength;
-                }
-            }
-        } catch (Exception|GuzzleException $e) {
-            Craft::error($e->getMessage(), __METHOD__);
-        }
-
-        $this->saveJsonIconSet($iconData, $setKey, $iconDirectory);
-    }
-
-    public function saveJsonIconSet(array $icons, string $setKey, string $iconDirectory): void
-    {
-        $wrappedData = [
-            'icons' => $icons
-        ];
-        $json = json_encode($wrappedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        $filePath = $iconDirectory . DIRECTORY_SEPARATOR . $setKey. '.json';
-        file_put_contents($filePath, $json);
-    }
-
     /**
      * @throws GuzzleException
      */

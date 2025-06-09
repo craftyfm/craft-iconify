@@ -14,14 +14,13 @@ use yii\web\Response;
 
 class FieldController extends Controller
 {
-    protected array|bool|int $allowAnonymous = true;
     /**
      * @throws BadRequestHttpException
      */
     public function actionPicker(): Response
     {
-//        $this->requireCpRequest();
-//        $this->requireAcceptsJson();
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
 
         $perPage = 1000;
 
@@ -72,7 +71,7 @@ class FieldController extends Controller
                 $scores[] = $score;
             }
 
-            $svg = Plugin::getInstance()->icons->getIconSvg($icon->name, $icon->set);
+            $svg = Plugin::getInstance()->icons->getIconSvgMarkup($icon->name, $icon->set);
             $output[] = Html::beginTag('li') .
                 Html::button($svg, [
                     'class' => 'icon-picker--icon',

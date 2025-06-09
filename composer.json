@@ -18,10 +18,14 @@
   },
   "extra": {
     "handle": "iconify",
-    "name": "Iconify",
-    "developer": "Stuart Russell",
-    "documentationUrl": ""
+    "name": "Iconify"
   },
+  "authors": [
+    {
+      "name": "Craftyfm",
+      "homepage": "https://craftyfm.com"
+    }
+  ],
   "scripts": {
     "check-cs": "ecs check --ansi",
     "fix-cs": "ecs check --ansi --fix",

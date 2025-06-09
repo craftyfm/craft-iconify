@@ -123,7 +123,6 @@ class IconifyPicker extends Field implements InlineEditableFieldInterface, Thumb
         foreach ($settings->iconSets as $key) {
             $iconSets[$key] = $iconSetList[$key]['name'] ?? $key;
         }
-
         $config = [
             'id' => $this->getInputId(),
             'describedBy' => $this->describedBy,
