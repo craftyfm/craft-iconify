@@ -23,7 +23,7 @@ use Twig\Error\SyntaxError;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\Schema;
-use \craftfm\iconify\web\assets\field\IconifyPicker as IconifyPickerAsset;
+use craftfm\iconify\web\assets\field\IconifyPicker as IconifyPickerAsset;
 
 /**
  * Icon represents an icon picker field.

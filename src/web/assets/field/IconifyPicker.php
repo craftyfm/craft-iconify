@@ -9,19 +9,18 @@ class IconifyPicker extends AssetBundle
 {
     public function init(): void
     {
-        $this->sourcePath = "@craftyfm/iconify/web/assets/field/src/";
+        $this->sourcePath = "@craftyfm/iconify/web/assets/field/dist/";
 
         $this->depends = [
             CpAsset::class, // includes Craft CP styles & JS
         ];
 
         $this->js = [
-            'js/IconPicker.js',
-            'js/IconPickerCustomize.js',
+            'js/app.js',
         ];
 
         $this->css = [
-            'css/iconify-picker.css',
+            'css/app.css',
         ];
 
         parent::init();

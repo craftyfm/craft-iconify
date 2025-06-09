@@ -7,9 +7,7 @@ use craft\helpers\Html;
 use craft\helpers\Search;
 use craft\web\Controller;
 use craftfm\iconify\Plugin;
-use yii\caching\FileDependency;
 use yii\web\BadRequestHttpException;
-use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 class FieldController extends Controller
@@ -25,8 +23,8 @@ class FieldController extends Controller
         $perPage = 1000;
 
         $search = $this->request->getRequiredBodyParam('search');
-        $set  = $this->request->getRequiredBodyParam('set');
-        $page = (int)$this->request->getBodyParam('page') ? (int) $this->request->getBodyParam('page') : 1;
+        $set = $this->request->getRequiredBodyParam('set');
+        $page = (int)$this->request->getBodyParam('page') ? (int)$this->request->getBodyParam('page') : 1;
         $noSearch = $search === '';
         $affixId = $this->request->getBodyParam('affix');
         $affixes = Plugin::getInstance()->icons->getIconSetAffixes($set);
@@ -58,7 +56,7 @@ class FieldController extends Controller
         if ($affixId && $affixId !== '') {
             $params['affixId'] = $affixId;
         }
-        $icons = Plugin::getInstance()->icons->getIconsModel($params, $perPage, ($page-1)*$perPage);
+        $icons = Plugin::getInstance()->icons->getIconsModel($params, $perPage, ($page - 1) * $perPage);
 
         $output = [];
         $scores = [];

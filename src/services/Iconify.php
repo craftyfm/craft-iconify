@@ -161,7 +161,7 @@ class Iconify extends Component
      */
     private function _requestApiIcons(string $iconSet, string $icons)
     {
-        $baseUrl = $this->getIconsApiUrl($iconSet);;
+        $baseUrl = $this->getIconsApiUrl($iconSet);
         $url = $baseUrl . $icons;
         $client = new Client();
         $response = $client->request('GET', $url);
