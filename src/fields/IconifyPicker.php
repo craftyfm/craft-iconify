@@ -23,7 +23,7 @@ use Twig\Error\SyntaxError;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\Schema;
-use \craftfm\iconify\web\assets\field\IconifyPicker as HugeIconPickerAsset;
+use \craftfm\iconify\web\assets\field\IconifyPicker as IconifyPickerAsset;
 
 /**
  * Icon represents an icon picker field.
@@ -116,7 +116,7 @@ class IconifyPicker extends Field implements InlineEditableFieldInterface, Thumb
      */
     protected function inputHtml(mixed $value, ?ElementInterface $element, bool $inline): string
     {
-        Craft::$app->getView()->registerAssetBundle(HugeIconPickerAsset::class);
+        Craft::$app->getView()->registerAssetBundle(IconifyPickerAsset::class);
         $settings = Plugin::getInstance()->getSettings();
         $iconSetList = Plugin::getInstance()->iconify->getIconSets($settings->iconSets);
         $iconSets = [];
@@ -138,40 +138,70 @@ class IconifyPicker extends Field implements InlineEditableFieldInterface, Thumb
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
+     * @throws \Exception
      */
     public function getStaticHtml(mixed $value, ElementInterface $element): string
     {
-        return Cp::iconPickerHtml([
-            'static' => true,
-            'value' => $value,
-        ]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getPreviewHtml(mixed $value, ElementInterface $element): string
-    {
-        return $value ? Html::tag('div', Cp::iconSvg($value), ['class' => 'cp-icon']) : '';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function previewPlaceholderHtml(mixed $value, ?ElementInterface $element): string
-    {
         if (!$value) {
-            $value = 'info';
+            return '';
         }
-
-        return $this->getPreviewHtml($value, $element ?? new Entry());
+        return $this->_renderStaticHtml($value);
     }
+
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
+     * @throws \Exception
      */
     public function getThumbHtml(mixed $value, ElementInterface $element, int $size): ?string
     {
-        return $value ? Html::tag('div', Cp::iconSvg($value), ['class' => 'cp-icon']) : null;
+        if (!$value) {
+            return '';
+        }
+        return $this->_renderStaticHtml($value);
+    }
+
+    public function previewPlaceholderHtml(mixed $value, ?ElementInterface $element): string
+    {
+        return $this->_renderStaticHtml($value);
+    }
+
+    public function getPreviewHtml(mixed $value, ElementInterface $element): string
+    {
+       if (!$value) {
+           return '';
+       }
+        return $this->_renderStaticHtml($value);
+    }
+
+
+    private function _renderStaticHtml(mixed $value): string
+    {
+        Craft::$app->getView()->registerCss("
+            .craftyfm-iconify-icon {
+                border: 1px solid grey;
+                padding: 2px;
+                background: #eee;
+                height: 2em;
+                width: 2em;
+                margin: 2px;
+            }
+        ");
+
+        if (!$value) {
+            $value = Plugin::getInstance()->icons->getExampleIcon();
+
+        }
+        return $value ? Html::tag('div', $value, ["class" => "craftyfm-iconify-icon"]) : "";
     }
 }

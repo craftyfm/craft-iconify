@@ -60,16 +60,16 @@
     {% endif %}
 {% endtag %}
 
-{#{% include 'iconify/_fields/icon-setting-modal' %}#}
-
 {% js %}
-new Craft.IconifyPicker('#{{ id|namespaceInputId }}', {
-    iconSets: {{ iconSets|json_encode|raw }},
-    defaultSet: "{{ defaultSet|raw }}",
-    fieldsNamePrefix: "{{ fieldsNamePrefix|raw }}"
-  });
+    {% if not static %}
+        new Craft.IconifyPicker('#{{ id|namespaceInputId }}', {
+            iconSets: {{ iconSets|json_encode|raw }},
+            defaultSet: "{{ defaultSet|raw }}",
+            fieldsNamePrefix: "{{ fieldsNamePrefix|raw }}"
+          });
 
-new Craft.IconifyCustomize('#{{ id|namespaceInputId }}', {
-    fieldsNamePrefix: "{{ fieldsNamePrefix|raw }}"
-});
+        new Craft.IconifyCustomize('#{{ id|namespaceInputId }}', {
+            fieldsNamePrefix: "{{ fieldsNamePrefix|raw }}"
+        });
+    {% endif %}
 {% endjs %}

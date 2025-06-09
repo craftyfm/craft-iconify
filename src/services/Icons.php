@@ -248,6 +248,13 @@ class Icons extends Component
         }
         $cache->delete($keyListKey);
     }
+
+    public function getExampleIcon(): Markup
+    {
+        $path = Craft::getAlias('@craftyfm/iconify/resources/icons/ico.svg');
+        $content = file_get_contents($path);
+        return new Markup($content, 'UTF-8');
+    }
     public function getIconSetDirectory(string $iconSet): string
     {
         return Craft::getAlias("@storage/iconify/icons/{$iconSet}");
