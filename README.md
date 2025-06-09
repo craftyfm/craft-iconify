@@ -34,6 +34,21 @@ After installation:
 
 ---
 
+## 📥 Downloading Icons
+
+To download icons, you have two options:
+
+- Navigate to **Utilities → Iconify** in the Craft Control Panel
+- Or use the console command:
+
+```bash
+./craft iconify/download {iconset}
+
+```
+Leave {iconset} empty to download only the selected icon sets from the plugin settings.
+
+---
+
 ## 🧩 Twig Usage
 
 Use the `iconify()` Twig function to render icons in your templates:
