@@ -128,10 +128,7 @@ class IconifyPicker extends Field implements InlineEditableFieldInterface, Thumb
             'id' => $this->getInputId(),
             'describedBy' => $this->describedBy,
             'name' => $this->handle,
-            'iconName' => $value ? $value->name : null,
-            'iconSet' => $value ? $value->set : null,
-            'iconColor' => $value ? $value->color : null,
-            'iconStrokeWidth' => $value ? $value->strokeWidth : null,
+            'value' => $value,
             'iconSets' => $iconSets,
             "defaultSet" => $value ? $value->set: ""
         ];

@@ -96,7 +96,7 @@ class Icons extends Component
         return  '';
     }
 
-    public function getIcon(string $iconSet, string $icon, string $color = null, float $stroke = null): Markup
+    public function getIcon(string $icon, string $iconSet, string $color = null, float $stroke = null): Markup
     {
         $path = $this->getIconSetDirectory($iconSet);
 

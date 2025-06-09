@@ -4,6 +4,7 @@ namespace craftfm\iconify\fields\Data;
 
 use craft\base\Serializable;
 use craftfm\iconify\Plugin;
+use Twig\Markup;
 
 class IconifyPickerData implements Serializable
 {
@@ -25,10 +26,11 @@ class IconifyPickerData implements Serializable
         return  Plugin::getInstance()->icons->getIconSvg($this->name, $this->set, $this->color, $this->strokeWidth);
     }
 
-    public function __()
+    public function getSvg(string $color = null, float $strokeWidth = null): Markup
     {
-
+        return Plugin::getInstance()->icons->getIcon($this->name, $this->set, $color ?: $this->color, $strokeWidth ?: $this->strokeWidth);
     }
+
     public function serialize(): array
     {
        return array_filter([

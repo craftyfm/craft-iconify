@@ -6,7 +6,7 @@
 {% set static = static ?? false %}
 
 {% set fieldsNamePrefix = "fields[#{name}]" %}
-{% set hasValue = iconName and iconSet %}
+{% set hasValue = value != null %}
 {% tag 'div' with {
     id,
     class: {
@@ -19,15 +19,15 @@
             'icon-picker--icon': true,
             small,
         }|filter|keys,
-        title: hasValue ? value : false,
+        title: hasValue ? value.name : false,
         role: hasValue ? 'img' : false,
         lang: craft.app.getTargetLanguage() starts with 'en' ? false : 'en',
         aria: {
-            label: hasValue ? value : false,
+            label: hasValue ? value.name : false,
         },
     } %}
         {% if hasValue %}
-            {{ iconify(iconSet, iconName) }}
+            {{ value.getSvg() }}
         {% endif %}
     {% endtag %}
 
@@ -51,10 +51,10 @@
         }) }}
 
         {% if name ?? false %}
-            {{- hiddenInput("#{name}[name]", iconName) -}}
-            {{- hiddenInput("#{name}[set]", iconSet) -}}
-            {{- hiddenInput("#{name}[color]", iconColor ?? '') -}}
-            {{- hiddenInput("#{name}[strokeWidth]", iconStrokeWidth ?? '') -}}
+            {{- hiddenInput("#{name}[name]", value ? value.name) -}}
+            {{- hiddenInput("#{name}[set]", value ? value.set) -}}
+            {{- hiddenInput("#{name}[color]", value ? value.color ) -}}
+            {{- hiddenInput("#{name}[strokeWidth]", value ? value.strokeWidth ) -}}
         {% endif %}
 
     {% endif %}
