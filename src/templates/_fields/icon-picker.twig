@@ -1,0 +1,75 @@
+{% import '_includes/forms.twig' as forms %}
+
+{% set id = id ?? "selectize#{random()}" %}
+{% set value = value ?? null %}
+{% set small = small ?? false %}
+{% set static = static ?? false %}
+
+{% set fieldsNamePrefix = "fields[#{name}]" %}
+{% set hasValue = value != null %}
+{% tag 'div' with {
+    id,
+    class: {
+        'icon-picker': true,
+        small,
+    }|filter|keys,
+} %}
+    {% tag 'div' with {
+        class: {
+            'icon-picker--icon': true,
+            small,
+        }|filter|keys,
+        title: hasValue ? value.name : false,
+        role: hasValue ? 'img' : false,
+        lang: craft.app.getTargetLanguage() starts with 'en' ? false : 'en',
+        aria: {
+            label: hasValue ? value.name : false,
+        },
+    } %}
+        {% if hasValue %}
+            {{ value.getSvg() }}
+        {% endif %}
+    {% endtag %}
+
+    {% if not static %}
+        {{ forms.button({
+            class: {
+                'icon-picker--choose-btn': true,
+                small,
+                hidden: hasValue and small,
+            }|filter|keys,
+            label: hasValue ? 'Change'|t('app') : 'Choose'|t('app'),
+        }) }}
+
+        {{ forms.button({
+            class: {
+                'icon-picker--remove-btn': true,
+                small,
+                hidden: not hasValue,
+            }|filter|keys,
+            label: 'Remove'|t('app'),
+        }) }}
+
+        {% if name ?? false %}
+            {{- hiddenInput("#{name}[name]", value ? value.name) -}}
+            {{- hiddenInput("#{name}[set]", value ? value.set) -}}
+            {{- hiddenInput("#{name}[color]", value ? value.color ) -}}
+            {{- hiddenInput("#{name}[strokeWidth]", value ? value.strokeWidth ) -}}
+        {% endif %}
+
+    {% endif %}
+{% endtag %}
+
+{% js %}
+    {% if not static %}
+        new Craft.IconifyPicker('#{{ id|namespaceInputId }}', {
+            iconSets: {{ iconSets|json_encode|raw }},
+            defaultSet: "{{ defaultSet|raw }}",
+            fieldsNamePrefix: "{{ fieldsNamePrefix|raw }}"
+          });
+
+        new Craft.IconifyCustomize('#{{ id|namespaceInputId }}', {
+            fieldsNamePrefix: "{{ fieldsNamePrefix|raw }}"
+        });
+    {% endif %}
+{% endjs %}

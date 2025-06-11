@@ -1,0 +1,18 @@
+{% import '_includes/forms.twig' as forms %}
+
+<form method="post">
+    {{ actionInput('iconify/icons/trigger-download') }}
+    {{
+        forms.selectField({
+            label: "Download Icon Sets",
+            id: 'iconSet',
+            name: 'iconSet',
+            options: iconSets
+        })
+    }}
+
+    <div class="flex flex-nowrap">
+        <button type="submit" id="export-btn" class="btn submit" aria-expanded="false">Refresh</button>
+    </div>
+
+</form>

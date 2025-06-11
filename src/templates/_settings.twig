@@ -1,0 +1,92 @@
+{% extends "_layouts/cp" %}
+{% import '_includes/forms.twig' as forms %}
+
+{% css %}
+    .craftyfm-iconify-note {
+        margin-top: -20px;
+        font-size: 0.9rem;
+    }
+{% endcss %}
+{% set fullPageForm = true %}
+{% set title = 'Settings' %}
+
+{% set iconSetOptions = collections | keys | map(i => { label: i|title, value: i }) %}
+
+{% set formAction = {
+    label: 'Save and continue editing'|t('plugin-handle'),
+    redirect: 'iconify/settings',
+    retainScroll: true,
+} %}
+{% block content %}
+    {{ actionInput('iconify/settings/save') }}
+
+    {{
+    forms.selectField({
+        name: 'storageSetting',
+        label: "Storage",
+        id: 'storageSetting',
+        options: storages,
+        instructions: 'Please specify where is the icons will be stored.',
+        value: settings.storage,
+     })
+    }}
+    <p class="craftyfm-iconify-note" style="display: none" data-select="local">⚠️ If you are using containers (like Docker), you may need to re-download icons when the container is rebuilt unless the storage folder is persisted.</p>
+    <p class="craftyfm-iconify-note" style="display: none" data-select="database">⚠️ This may increase your database size, which could impact performance or backup sizes over time.</p>
+
+
+    {{
+        forms.selectField({
+            label: "Icon Category",
+            id: 'iconCategory',
+            options: iconSetOptions,
+            instructions: 'Select an icon set. Browse full icon sets at <a href="https://icon-sets.iconify.design/">Iconify</a>.',
+        })
+    }}
+
+
+    <div class="field">
+        <div class="heading"><label id="iconsDirectory-label" for="iconsDirectory">Icon Sets</label></div>
+
+        <div id="iconCheckboxGroups">
+            {% for key, collection in collections %}
+                <div class="icon-group" data-iconset="{{ key }}" style="display: none;">
+                    {% for setKey, iconSet in collection %}
+                        <label>
+                            <input type="checkbox" name="iconSets[]" value="{{ setKey }}"
+                                   {% if setKey in settings.iconSets ?? [] %}checked{% endif %}
+                            >
+                            {{ iconSet['name'] }}
+                        </label><br>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+{% js %}
+
+document.getElementById('storageSetting').addEventListener('change', function (){
+    const selected = this.value;
+
+    console.log(selected);
+    document.querySelectorAll('.craftyfm-iconify-note').forEach(info => {
+        console.log(info);
+        info.style.display = info.dataset.select === selected ? 'block' : 'none';
+    });
+})
+
+document.getElementById('iconCategory').addEventListener('change', function () {
+    const selected = this.value;
+    document.querySelectorAll('#iconCheckboxGroups .icon-group').forEach(group => {
+        group.style.display = group.dataset.iconset === selected ? 'block' : 'none';
+    });
+});
+
+// Trigger on load to show correct group if value is preset
+document.getElementById('iconCategory').dispatchEvent(new Event('change'));
+document.getElementById('storageSetting').dispatchEvent(new Event('change'));
+{% endjs %}
