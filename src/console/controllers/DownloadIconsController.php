@@ -2,9 +2,7 @@
 
 namespace craftfm\iconify\console\controllers;
 
-use Craft;
 use craft\console\Controller;
-use craftfm\iconify\jobs\DownloadIconsQueueJob;
 use craftfm\iconify\models\Icon;
 use craftfm\iconify\Plugin;
 use GuzzleHttp\Exception\GuzzleException;
