@@ -73,6 +73,7 @@ class DownloadIconsQueueJob extends BaseJob
             }
             $this->setProgress($queue, $i / $total);
         }
+        Plugin::getInstance()->icons->clearIconCache($this->iconSet);;
     }
 
 

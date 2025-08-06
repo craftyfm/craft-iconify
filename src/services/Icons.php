@@ -21,7 +21,7 @@ class Icons extends Component
      * @param array $options
      * @return IconModel[]
      */
-    public function getIconsModel(array $options = [], int $limit = null, int $offset = null): array
+    public function getIconsModel(array $options = [], int $limit = null, int $offset = null, string $search = null): array
     {
         $settings = Plugin::getInstance()->getSettings();
         // Start a query on IconRecord
@@ -38,6 +38,9 @@ class Icons extends Component
             }
         }
 
+        if ($search) {
+            $query->andWhere(['like', 'name', $search]);
+        }
         if ($limit !== null) {
             $query->limit($limit);
         }

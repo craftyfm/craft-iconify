@@ -48,26 +48,20 @@ class FieldController extends Controller
                     'selectedAffix' => $affixId,
                 ]);
             }
-            $searchTerms = null;
+            $searchTerm = null;
         } else {
-            $searchTerms = explode(' ', Search::normalizeKeywords($search));
+            $searchTerm = Search::normalizeKeywords($search);
         }
         $params = ['set' => $set];
         if ($affixId && $affixId !== '') {
             $params['affixId'] = $affixId;
         }
-        $icons = Plugin::getInstance()->icons->getIconsModel($params, $perPage, ($page - 1) * $perPage);
+
+        $icons = Plugin::getInstance()->icons->getIconsModel($params, $perPage, ($page - 1) * $perPage, $searchTerm);
 
         $output = [];
         $scores = [];
         foreach ($icons as $icon) {
-            if ($searchTerms) {
-                $score = $this->matchTerms($searchTerms, $icon->name) * 5;
-                if ($score === 0) {
-                    continue;
-                }
-                $scores[] = $score;
-            }
 
             $svg = Plugin::getInstance()->icons->getIconSvgMarkup($icon->name, $icon->set);
             $output[] = Html::beginTag('li') .
@@ -83,13 +77,9 @@ class FieldController extends Controller
                 Html::endTag('li');
         }
 
-        if ($searchTerms) {
-            array_multisort($scores, SORT_DESC, $output);
-        }
-
         $listHtml = implode('', $output);
 
-        if ($noSearch && ($affixId === null || $affixId === '')) {
+        if ($noSearch && ($affixId === null || $affixId === '') && count($output) > 0) {
             /** @phpstan-ignore-next-line */
             $cache->set($cacheKey, $listHtml);
         }

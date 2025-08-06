@@ -33,14 +33,11 @@ Craft.IconifyPicker = Craft.BaseInputGenerator.extend(
             this.$preview = this.$container.children('.icon-picker--icon');
             this.$chooseBtn = this.$container.children('.icon-picker--choose-btn');
             this.$removeBtn = this.$container.children('.icon-picker--remove-btn');
-            const fieldName = settings.fieldsNamePrefix + '[name]';
-            const fieldSet = settings.fieldsNamePrefix + '[set]';
-            this.$inputName = this.$container.find(`input[name="${fieldName}"]`);
-            this.$inputSet = this.$container.find(`input[name="${fieldSet}"]`);
+            this.$inputName = this.$container.find('input[name$="[name]"]');
+            this.$inputSet = this.$container.find('input[name$="[set]"]');
             this.addListener(this.$chooseBtn, 'activate', () => {
                 this.showModal();
             });
-
             this.addListener(this.$removeBtn, 'activate', () => {
                 this.removeIcon();
             });
@@ -280,6 +277,8 @@ Craft.IconifyPicker = Craft.BaseInputGenerator.extend(
             this.$inputSet.val(iconSet);
             this.$chooseBtn.children('.label').text(Craft.t('app', 'Change'));
             this.$chooseBtn.focus();
+            console.log(this.$removeBtn)
+            console.log(this.$inputName)
             this.$removeBtn.removeClass('hidden');
             if (this.$container.hasClass('small')) {
                 this.$chooseBtn.addClass('hidden');

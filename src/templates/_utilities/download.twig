@@ -2,6 +2,7 @@
 
 <form method="post">
     {{ actionInput('iconify/icons/trigger-download') }}
+    {{ csrfInput() }}
     {{
         forms.selectField({
             label: "Download Icon Sets",

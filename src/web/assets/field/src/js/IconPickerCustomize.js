@@ -18,10 +18,8 @@ Craft.IconifyCustomize = Craft.BaseInputGenerator.extend(
             this.$container = $(container);
             this.setSettings(settings, Craft.IconifyCustomize.defaults);
             this.$preview = this.$container.children('.icon-picker--icon');
-            const fieldColor = settings.fieldsNamePrefix + '[color]';
-            const fieldStroke = settings.fieldsNamePrefix + '[strokeWidth]';
-            this.$inputColor = this.$container.find(`input[name="${fieldColor}"]`);
-            this.$inputStrokeWidth = this.$container.find(`input[name="${fieldStroke}"]`);
+            this.$inputColor = this.$container.find('input[name$="[color]"]');
+            this.$inputStrokeWidth = this.$container.find('input[name$="[strokeWidth]"]');
             this.addListener(this.$preview, 'activate', () => {
                 this.showModal();
             });
