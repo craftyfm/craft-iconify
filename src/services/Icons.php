@@ -276,12 +276,16 @@ class Icons extends Component
     {
         return Craft::getAlias("@storage/iconify/icons/{$iconSet}");
     }
+
     /**
+     * @throws Exception
+     * @throws ErrorException
      */
     private function _checkDirectory(string $folderPath): void
     {
         if (!is_dir($folderPath)) {
-            mkdir($folderPath, 0755, true);
+            FileHelper::createDirectory($folderPath);
+            FileHelper::writeGitignoreFile($folderPath);
         }
     }
 
