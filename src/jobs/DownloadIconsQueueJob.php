@@ -2,12 +2,10 @@
 
 namespace craftfm\iconify\jobs;
 
-use Craft;
 use craft\queue\BaseJob;
 use craftfm\iconify\models\Icon;
 use craftfm\iconify\Plugin;
 use GuzzleHttp\Exception\GuzzleException;
-use yii\base\ErrorException;
 use yii\base\Exception;
 
 class DownloadIconsQueueJob extends BaseJob

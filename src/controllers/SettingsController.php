@@ -5,7 +5,6 @@ namespace craftfm\iconify\controllers;
 use Craft;
 use craft\errors\MissingComponentException;
 use craft\web\Controller;
-use craftfm\iconify\jobs\DownloadIconsQueueJob;
 use craftfm\iconify\Plugin;
 use Exception;
 use yii\web\BadRequestHttpException;

@@ -26,9 +26,12 @@ class IconifyPickerData implements Serializable
         return  Plugin::getInstance()->icons->getIconSvgMarkup($this->name, $this->set, $this->color, $this->strokeWidth);
     }
 
-    public function getSvg(string $color = null, float $strokeWidth = null): Markup
+    public function getSvg(string $color = null, float $strokeWidth = null, string|int $width = null, string|int $height = null ): Markup
     {
-        return Plugin::getInstance()->icons->renderIcon($this->name, $this->set, $color ?: $this->color, $strokeWidth ?: $this->strokeWidth);
+        return Plugin::getInstance()->icons->renderIcon($this->name, $this->set,
+            $color ?: $this->color, $strokeWidth ?: $this->strokeWidth,
+                 $width, $height
+        );
     }
 
     public function serialize(): array

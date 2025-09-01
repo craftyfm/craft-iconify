@@ -15,10 +15,10 @@ class Icon extends Model
     public ?string $suffixId;
     public string $body;
 
-    public function getSvg(string $color = null, string $stroke = null): string
+    public function getSvg(string $color = null, string $stroke = null, string|int $width = null, string|int $height = null): string
     {
         if (isset($this->body) && $this->body) {
-            return Plugin::$plugin->icons->buildSvg($this->body, $color, $stroke);
+            return Plugin::$plugin->icons->buildSvg($this->body, $color, $stroke, $width, $height);
         }
         return '';
     }

@@ -9,21 +9,17 @@ use craft\base\Field;
 use craft\base\InlineEditableFieldInterface;
 use craft\base\MergeableFieldInterface;
 use craft\base\ThumbableFieldInterface;
-use craft\elements\Entry;
-use craft\helpers\Cp;
 use craft\helpers\Html;
-use craft\web\twig\TemplateLoaderException;
 use craft\web\View;
 use craftfm\iconify\fields\Data\IconifyPickerData;
 use craftfm\iconify\Plugin;
-use craftfm\iconify\services\Iconify;
+use craftfm\iconify\web\assets\field\IconifyPicker as IconifyPickerAsset;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\Schema;
-use craftfm\iconify\web\assets\field\IconifyPicker as IconifyPickerAsset;
 
 /**
  * Icon represents an icon picker field.

@@ -5,14 +5,13 @@ namespace craftfm\iconify\services;
 use Craft;
 use craft\base\Component;
 use craft\helpers\FileHelper;
-use craft\helpers\StringHelper;
+use craftfm\iconify\models\Icon as IconModel;
 use craftfm\iconify\Plugin;
 use craftfm\iconify\records\AffixRecord;
 use craftfm\iconify\records\IconRecord;
 use Twig\Markup;
 use yii\base\ErrorException;
 use yii\base\Exception;
-use craftfm\iconify\models\Icon as IconModel;
 
 class Icons extends Component
 {

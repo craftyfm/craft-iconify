@@ -2,7 +2,6 @@
 
 namespace craftfm\iconify\migrations;
 
-use Craft;
 use craft\db\Migration;
 
 /**

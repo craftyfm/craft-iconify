@@ -4,7 +4,6 @@ namespace craftfm\iconify\controllers;
 
 use Craft;
 use craft\web\Controller;
-use craft\web\Response;
 use craftfm\iconify\jobs\DownloadIconsQueueJob;
 use craftfm\iconify\Plugin;
 use yii\web\BadRequestHttpException;
