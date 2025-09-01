@@ -77,7 +77,7 @@ class Icons extends Component
     }
 
 
-    public function buildSvg(string $body, string $color = null, float $stroke = null): string
+    public function buildSvg(string $body, string $color = null, float $stroke = null, string|int $width = null, string|int $height = null): string
     {
         if ($color) {
             $body = str_replace('currentColor', $color, $body);
@@ -88,26 +88,38 @@ class Icons extends Component
         if ($stroke) {
             $strokeAtt = "stroke='$color' stroke-width='$stroke'";
         }
+
+        $sizeAtt = '';
+        if ($width) {
+            $sizeAtt = "width='$width' ";
+        }
+        if ($height) {
+            $sizeAtt .= "height='$height'";
+        }
+
         return <<<SVG
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" $strokeAtt>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" $strokeAtt $sizeAtt>
                 $body
             </svg>
             SVG;
     }
 
-    public function getIconSvgMarkup(string $icon, string $set, string $color = null, float $stroke = null): string
+    public function getIconSvgMarkup(string $icon, string $set,
+                                     string $color = null, float $stroke = null,
+                                     int|string $width = null, int|string $height = null): string
     {
         $settings = Plugin::getInstance()->getSettings();
         if ($settings->storage === $settings::LOCAL_STORAGE) {
-            return $this->buildSvg($this->_getSvgBodyFromLocalStorage($icon, $set), $color, $stroke);
+            return $this->buildSvg($this->_getSvgBodyFromLocalStorage($icon, $set), $color, $stroke, $width, $height);
         }
-        return $this->buildSvg($this->_getSvgBodyFromDatabase($icon, $set), $color, $stroke);
+        return $this->buildSvg($this->_getSvgBodyFromDatabase($icon, $set), $color, $stroke, $width, $height);
 
     }
 
-    public function renderIcon(string $icon, string $set, string $color = null, float $stroke = null): Markup
+    public function renderIcon(string $icon, string $set, string $color = null, float $stroke = null,
+                               int|string $width = null, int|string $height = null ): Markup
     {
-        $svg = $this->getIconSvgMarkup($icon, $set, $color, $stroke);
+        $svg = $this->getIconSvgMarkup($icon, $set, $color, $stroke, $width, $height);
         return new Markup($svg, 'UTF-8');
     }
 
