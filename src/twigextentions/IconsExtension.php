@@ -2,7 +2,6 @@
 
 namespace craftfm\iconify\twigextentions;
 
-use Craft;
 use craftfm\iconify\Plugin;
 use Twig\Extension\AbstractExtension;
 use Twig\Markup;

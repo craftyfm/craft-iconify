@@ -54,7 +54,7 @@ Leave {iconset} empty to download only the selected icon sets from the plugin se
 Use the `iconify()` Twig function to render icons in your templates:
 
 ```twig
-{{ iconify('home', 'tabler', '#000', '1.5') }}
+{{ iconify('home', 'tabler', '#000', '1.5', 24, 24) }}
 ```
 
 ### Parameters:
@@ -63,7 +63,8 @@ Use the `iconify()` Twig function to render icons in your templates:
 * `iconset` (required): The icon set (e.g., `tabler`, `mdi`, etc.).
 * `color` (optional): The fill or stroke color (e.g., `#ff0000` or `red`).
 * `stroke` (optional): Stroke width (e.g., `1`, `1.5`, `2`).
-
+* `width` (optional) Icon width (e.g., 24, `24`. `1em`)
+* `height` (optional) Icon height (e.g., 24, `24`. `1em`)
 ---
 
 ## 🧱 Custom Field Type

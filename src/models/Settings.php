@@ -2,7 +2,6 @@
 
 namespace craftfm\iconify\models;
 
-use Craft;
 use craft\base\Model;
 
 /**
