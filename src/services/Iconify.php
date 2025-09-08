@@ -184,7 +184,6 @@ class Iconify extends Component
         if ($response->getStatusCode() !== 200) {
             throw new Exception("Failed to request data");
         }
-
         $content = $response->getBody()->getContents();
         return json_decode($content, true);
     }
