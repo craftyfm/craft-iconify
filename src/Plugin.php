@@ -33,7 +33,7 @@ use yii\web\Response;
 class Plugin extends BasePlugin
 {
     public static Plugin $plugin;
-    public string $schemaVersion = '1.0.0';
+    public string $schemaVersion = '1.0.1';
     public bool $hasCpSettings = true;
 
 
