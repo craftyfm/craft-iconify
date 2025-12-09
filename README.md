@@ -1,19 +1,15 @@
 # Iconify Plugin for Craft CMS
 
-
 A plugin that helps you to use [Iconify](https://iconify.design/) in Craft CMS.
 
 
 ## Requirements
-
 
  - Craft CMS 5.0.0 or later
  - PHP 8.2 or later
 
 
 ## Installation
-
-
 
 Open your terminal and run the following commands:
 
@@ -41,7 +37,6 @@ Please follow these following steps:
        Using large icon sets may increase your database size and affect performance.
 3. Select the **icon sets** you want to use.
 
----
 
 ## Downloading Icons
 
@@ -55,7 +50,6 @@ To download icons, you have two options:
 ```
 Leave {iconset} empty to download all the selected icon sets from the plugin settings.
 
----
 
 ## Twig Usage
 
@@ -77,9 +71,6 @@ Use the `iconify()` Twig function to render icons in your templates:
 
 ## Iconify Field Picker
 
----
-
-
 You can create a iconify field picker in the Control Panel:
 Currently, we support these configurable features:
     * Icon color
@@ -91,5 +82,3 @@ To show the icon in your templates, use the `getSvg()` method:
 ```twig
 {{ entry.fieldHandle.getSvg() }}
 ```
-
----
