@@ -6,7 +6,6 @@ A plugin that helps you to use [Iconify](https://iconify.design/) in Craft CMS.
 
 ## Requirements
 
----
 
  - Craft CMS 5.0.0 or later
  - PHP 8.2 or later
@@ -14,7 +13,6 @@ A plugin that helps you to use [Iconify](https://iconify.design/) in Craft CMS.
 
 ## Installation
 
----
 
 
 Open your terminal and run the following commands:
@@ -30,7 +28,6 @@ php craft install/plugin iconify
 
 ## Setup
 
----
 To be able to use this plugins, you need to set up the storage and the icon sets you want to use.
 Please follow these following steps:
 1. Go to **Settings → Plugins → Iconify**.
